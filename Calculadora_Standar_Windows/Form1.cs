@@ -27,16 +27,19 @@ namespace Calculadora_Standar_Windows
             InitializeComponent();
         }
 
+        //copia el texto en pantalla
         private void copiarToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Clipboard.SetText(txtCal.Text);
         }
 
+        //pegar el texto en pantalla
         private void pegarToolStripMenuItem_Click(object sender, EventArgs e)
         {
             txtCal.Text += Clipboard.GetText();
         }
 
+        // borra digito por digito
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (step1)
@@ -65,6 +68,7 @@ namespace Calculadora_Standar_Windows
             }
         }
 
+        // previene funciones del teclado.
         private void control_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
@@ -73,71 +77,63 @@ namespace Calculadora_Standar_Windows
             }
         }
 
+        //seleciona la tecla de igual
         private void AutoReset()
         {
             this.ActiveControl = btnResultado;
         }
- 
+        
+        //botones numericos
         private void btn9_Click(object sender, EventArgs e)
         {
             IngresarNumero('9');
             DrawText();
         }
-
         private void btn8_Click(object sender, EventArgs e)
         {
             IngresarNumero('8');
             DrawText();
         }
-
         private void btn7_Click(object sender, EventArgs e)
         {
             IngresarNumero('7');
             DrawText();
         }
-
         private void btn6_Click(object sender, EventArgs e)
         {
             IngresarNumero('6');
             DrawText();
         }
-
         private void btn5_Click(object sender, EventArgs e)
         {
             IngresarNumero('5');
             DrawText();
         }
-
         private void btn4_Click(object sender, EventArgs e)
         {
             IngresarNumero('4');
             DrawText();
         }
-
         private void btn3_Click(object sender, EventArgs e)
         {
             IngresarNumero('3');
             DrawText();
         }
-
         private void btn2_Click(object sender, EventArgs e)
         {
             IngresarNumero('2');
             DrawText();
         }
-
         private void btn1_Click(object sender, EventArgs e)
         {
             IngresarNumero('1');
             DrawText();
         }
-
         private void btn0_Click(object sender, EventArgs e)
         {
             IngresarNumero('0');
             DrawText();
         }
-
         private void btnPunto_Click(object sender, EventArgs e)
         {
             if (!esfraccion) IngresarNumero('.');
@@ -145,6 +141,9 @@ namespace Calculadora_Standar_Windows
             DrawText();
         }
 
+        //botones de funciones
+
+        //limpia el dijito inferior
         private void btnClearE_Click(object sender, EventArgs e)
         {  
             if (step1) n1 = "0";
@@ -152,25 +151,25 @@ namespace Calculadora_Standar_Windows
             DrawText("CleanE");
         }
 
+        //limpia todo el texto
         private void btnClear_Click(object sender, EventArgs e)
         {
             ResetCalculadora();
         }
 
+        // botones de operaciones
         private void btnSumar_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('+');
             NextStep("step3");
             DrawText();
         }
-
         private void btnRestar_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('-');
             NextStep("step3");
             DrawText();
         }
-
         private void btnMultiplicar_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('*');
@@ -178,7 +177,6 @@ namespace Calculadora_Standar_Windows
             NextStep("step3");
             DrawText();
         }
-
         private void btnDividir_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('/');
@@ -186,6 +184,7 @@ namespace Calculadora_Standar_Windows
             DrawText();
         }
 
+        //botones modificadores
         private void btnRaiz_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('√');
@@ -193,14 +192,12 @@ namespace Calculadora_Standar_Windows
             NextStep("step4");
             DrawText();
         }
-
         private void btnProciento_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('%');
             NextStep("step3");
             DrawText();
         }
-
         private void btnMasoMenos_Click(object sender, EventArgs e)
         {
             if (txtCal.Text.Contains("-"))
@@ -210,6 +207,7 @@ namespace Calculadora_Standar_Windows
             AutoReset();
         }
 
+        // resultados o calcular ecuacion
         private void btnResultado_Click(object sender, EventArgs e)
         {
             if (operador == '√')
@@ -234,8 +232,10 @@ namespace Calculadora_Standar_Windows
             }
         }
 
+        // detecta las teclas del teclado
         private void Form1_KeyPress(object sender, KeyPressEventArgs e)
         {        
+            // detectar numereos o punto
             if (caluladora.checkCharacter(e.KeyChar))
             {
                 if (e.KeyChar != '.')
@@ -250,7 +250,7 @@ namespace Calculadora_Standar_Windows
                     DrawText();
                 }
             }
-            else if (caluladora.checkOperation(e.KeyChar))
+            else if (caluladora.checkOperation(e.KeyChar)) //detecta operaciones por teclado * / + -
             {
                 AlmacenarOperacion(e.KeyChar);
                 NextStep("step3");
@@ -263,6 +263,7 @@ namespace Calculadora_Standar_Windows
             }
         }
 
+        //ingresar los numero por botones o por teclado
         private void IngresarNumero(char value)
         {
             if (step4) ResetCalculadora();
@@ -280,6 +281,7 @@ namespace Calculadora_Standar_Windows
             }   
         }
 
+        // ingresar operaciones por botones o por teclado
         private void AlmacenarOperacion(char value)
         {
             if(value != '%' && value != '√') nOperaciones++;
@@ -298,6 +300,7 @@ namespace Calculadora_Standar_Windows
             esfraccion = false;
         }
 
+        //resetea la calculadora
         private void ResetCalculadora()
         {
             n1 = "0";
@@ -311,6 +314,7 @@ namespace Calculadora_Standar_Windows
             DrawText("Clean");
         }
 
+        //muestra todas las interacciones
         private void DrawText(string value = "")
         {
             if (value != "")
@@ -330,6 +334,7 @@ namespace Calculadora_Standar_Windows
             AutoReset();
         }
 
+        //pasa step por step
         private void NextStep(string value = "")
         {
             if (value != "")
@@ -367,6 +372,7 @@ namespace Calculadora_Standar_Windows
             }
         }
 
+        //muestra un mensaje de prueva
         private void TestFunction(string indicador)
         {
             MessageBox.Show(indicador + ": se ejecuta.");
