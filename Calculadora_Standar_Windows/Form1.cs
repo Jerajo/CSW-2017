@@ -200,10 +200,17 @@ namespace Calculadora_Standar_Windows
         }
         private void btnMasoMenos_Click(object sender, EventArgs e)
         {
-            if (txtCal.Text.Contains("-"))
-                txtCal.Text = txtCal.Text.Remove(0, 1);
-            else
-                txtCal.Text = txtCal.Text.Insert(0, "-");
+            if (step1)
+            {
+                if (n1.Contains("-")) n1 = n1.Remove(0, 1);
+                else n1 = n1.Insert(0, "-");
+            }
+            else if (step3)
+            {
+                if (n2.Contains("-")) n2 = n2.Remove(0, 1);
+                else n2 = n2.Insert(0, "-");
+            }
+            DrawText();
             AutoReset();
         }
 
@@ -317,6 +324,7 @@ namespace Calculadora_Standar_Windows
         //muestra todas las interacciones
         private void DrawText(string value = "")
         {
+            //TestFunction("DrawText");
             if (value != "")
             {
                 if (value == "Clean") txtCal.Text = "0";
