@@ -16,10 +16,10 @@ namespace Calculadora_Standar_Windows
     {
         //variables e instancias
         Calculadora caluladora = new Calculadora();
-        bool step1, step2, step22, step3, step4, esfraccion;
+        bool esfraccion;
         string operacion, resultado;
         string n1 = "0", n2 = "0";
-        char operador;
+        char operador, step;
         int nOperaciones = 0;
 
         public Form1()
@@ -42,12 +42,12 @@ namespace Calculadora_Standar_Windows
         // borra digito por digito
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (step1)
+            if (step == '1')
             {
                 if (n1 != "0" && n1.Length != 0) n1 = n1.Remove(n1.Length - 1, 1);
                 if(n1.Length == 0) n1 = "0";
             }
-            else if (step3)
+            else if (step == '3')
             {
                 if (n2 != "0" && n2.Length != 0) n2 = n2.Remove(n2.Length - 1, 1);
                 if (n2.Length == 0) n2 = "0";
@@ -57,10 +57,8 @@ namespace Calculadora_Standar_Windows
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            DrawText("Clean");
-            step1 = true;
+            ResetCalculadora();
             this.KeyPreview = true;
-            AutoReset();
 
             foreach (Control control in this.Controls)
             {
@@ -146,8 +144,8 @@ namespace Calculadora_Standar_Windows
         //limpia el dijito inferior
         private void btnClearE_Click(object sender, EventArgs e)
         {  
-            if (step1) n1 = "0";
-            else if (step3) n2 = "0";
+            if (step == '1') n1 = "0";
+            else if (step == '3') n2 = "0";
             DrawText("CleanE");
         }
 
@@ -160,28 +158,19 @@ namespace Calculadora_Standar_Windows
         // botones de operaciones
         private void btnSumar_Click(object sender, EventArgs e)
         {
-            AlmacenarOperacion('+');
-            NextStep("step3");
-            DrawText();
+            AlmacenarOperacion('+');           
         }
         private void btnRestar_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('-');
-            NextStep("step3");
-            DrawText();
         }
         private void btnMultiplicar_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('*');
-            if (nOperaciones >= 2) NextStep("step22");
-            NextStep("step3");
-            DrawText();
         }
         private void btnDividir_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('/');
-            NextStep("step3");
-            DrawText();
         }
 
         //botones modificadores
@@ -189,26 +178,32 @@ namespace Calculadora_Standar_Windows
         {
             AlmacenarOperacion('√');
             btnResultado_Click(null, null);
-            NextStep("step4");
+            NextStep('4');
             DrawText();
         }
         private void btnProciento_Click(object sender, EventArgs e)
         {
             AlmacenarOperacion('%');
-            NextStep("step3");
-            DrawText();
         }
         private void btnMasoMenos_Click(object sender, EventArgs e)
         {
-            if (step1)
+            if (step == '2' || step == 'P') NextStep();
+            if (step == '1')
             {
                 if (n1.Contains("-")) n1 = n1.Remove(0, 1);
                 else n1 = n1.Insert(0, "-");
             }
-            else if (step3)
+            else if (step == '3')
             {
                 if (n2.Contains("-")) n2 = n2.Remove(0, 1);
                 else n2 = n2.Insert(0, "-");
+            }
+            else if (step == '4')
+            {
+                n2 = resultado;
+                if (n2.Contains("-")) n2 = n2.Remove(0, 1);
+                else n2 = n2.Insert(0, "-");
+                resultado = n2;
             }
             DrawText();
             AutoReset();
@@ -219,24 +214,31 @@ namespace Calculadora_Standar_Windows
         {
             if (operador == '√')
             {
-                if (step1) resultado = caluladora.Calcular(operador, n1);
-                if (step3) resultado = caluladora.Calcular(operador, n2);
-                if (step4) resultado = caluladora.Calcular(operador, resultado);    
+                if (step == '1') resultado = caluladora.Calcular(operador, n1);
+                if (step == '3') resultado = caluladora.Calcular(operador, n2);
+                if (step == '4') resultado = caluladora.Calcular(operador, resultado);    
             }
-            else if (step3)
+            else if (step == '2')
             {
-                NextStep();
-                if (step22 || step4)
+                resultado = caluladora.Calcular(operador, n1, n1);
+                NextStep('4');
+            }
+            else if (step == '3')
+            {
+                resultado = caluladora.Calcular(operador, n1, n2);
+                NextStep();          
+                if (step == 'P')
                 {
-                    resultado = caluladora.Calcular(operador, n1, n2);
-                    DrawText();
-                    if (step22)
-                    {
-                        n1 = resultado;
-                        n2 = resultado;
-                    }
+                    n1 = resultado;
+                    n2 = resultado;
                 }
             }
+            else if (step == '4')
+            {
+                n1 = resultado;
+                resultado = caluladora.Calcular(operador, n1, n2);
+            }
+            DrawText();
         }
 
         // detecta las teclas del teclado
@@ -260,8 +262,6 @@ namespace Calculadora_Standar_Windows
             else if (caluladora.checkOperation(e.KeyChar)) //detecta operaciones por teclado * / + -
             {
                 AlmacenarOperacion(e.KeyChar);
-                NextStep("step3");
-                DrawText();
             }
 
             if (e.KeyChar == (char)8)
@@ -273,38 +273,43 @@ namespace Calculadora_Standar_Windows
         //ingresar los numero por botones o por teclado
         private void IngresarNumero(char value)
         {
-            if (step4) ResetCalculadora();
-            if (step1)
+            if (step == '4') ResetCalculadora();
+            if (step == '2') NextStep();
+
+            if (step == '1')
             {
                 if (n1 == "0" && value != '.') n1 = "";
                 n1 += value;
             } 
-            else if (step3)
+            else if (step == '3')
             {
                 if (n2 == "0" && value != '.') n2 = "";
-                else if (resultado != "") n2 = "";
                 n2 += value;
-                resultado = "";
             }   
         }
 
         // ingresar operaciones por botones o por teclado
         private void AlmacenarOperacion(char value)
         {
-            if(value != '%' && value != '√') nOperaciones++;
+            if (value == '√') NextStep('4');
+            else NextStep();
+            if (value != '%' && value != '√') nOperaciones++;
+
             operador = value;
+
             if(nOperaciones >= 2)
             {
                 operacion += n2 + " " + operador;
-                NextStep("step22");
+                NextStep('P');
                 btnResultado_Click(null, null);
             }
             else
             {
                 if (operador == '√') operacion = operador + " " + n1;
-                else if (step1) operacion = n1 + " " + operador;
+                else operacion = n1 + " " + operador;
             }
             esfraccion = false;
+            DrawText();
         }
 
         //resetea la calculadora
@@ -317,8 +322,8 @@ namespace Calculadora_Standar_Windows
             resultado = "";
             esfraccion = false;
             nOperaciones = 0;
-            NextStep("step1");
-            DrawText("Clean");
+            NextStep('1');
+            DrawText();
         }
 
         //muestra todas las interacciones
@@ -330,54 +335,51 @@ namespace Calculadora_Standar_Windows
                 if (value == "Clean") txtCal.Text = "0";
                 else if (value == "CleanE")
                 {
-                    if (step1 || step4) txtCal.Text = "0";
+                    if (step == '1' || step == '4') txtCal.Text = "0";
                     else txtCal.Text = operacion + "\n0";
                 }
             }  
-            else if (step1) txtCal.Text = n1;
-            else if (step2) txtCal.Text = operacion + "\n0";
-            else if (step22) txtCal.Text = operacion + "\n" + resultado;
-            else if (step3) txtCal.Text = operacion + "\n" + n2;
-            else if (step4) txtCal.Text = resultado;
+            else if (step == '1') txtCal.Text = n1;
+            else if (step == '2') txtCal.Text = operacion + "\n" + n1;           
+            else if (step == '3') txtCal.Text = operacion + "\n" + n2;
+            else if (step == '4') txtCal.Text = resultado;
+            else if (step == 'S') txtCal.Text = operacion + "\n" + n2;
+            else if (step == 'P') txtCal.Text = operacion + "\n" + n2;
             AutoReset();
         }
 
         //pasa step por step
-        private void NextStep(string value = "")
+        private void NextStep(char value = '0')
         {
-            if (value != "")
-            {       
-                step1 = false;
-                step2 = false;
-                step22 = false;
-                step3 = false;
-                step4 = false;
-                if (value == "step1") step1 = true;
-                else if (value == "step2") step2 = true;
-                else if (value == "step22") step22 = true;
-                else if (value == "step3") step3 = true;
-                else if (value == "step4") step4 = true;
-            }
-            else if (step1)
+            if (value != '0')
             {
-                step1 = false;
-                step2 = true;
+                step = value;
             }
-            else if (step2)
+            else 
             {
-                step2 = false;
-                step3 = true;
+                switch (step)
+                {
+                    case '1':
+                        step = '2';
+                        break;
+                    case '2':
+                        step = '3';
+                        break;
+                    case '3':
+                    case 'P':
+                    case 'S':
+                    case 'M':
+                        step = '4';
+                        break;
+                    case '4':
+                        step = '1';
+                        break;
+                    default:
+                        break;
+                }
+
             }
-            else if (step3)
-            {
-                step3 = false;
-                step4 = true;
-            }
-            else if (step4)
-            {
-                step4 = false;
-                step1 = true;
-            }
+            
         }
 
         //muestra un mensaje de prueva
