@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -21,10 +22,14 @@ namespace Calculadora_Standar_Windows
         string n1 = "0", n2 = "0";
         char operador, step;
         int nOperaciones = 0;
+        private int plus = 0;
 
         public Form1()
         {
             InitializeComponent();
+            
+            // es para que al principio aparezca desactivados los botones de memroia
+            activateButton(true);
         }
 
         //copia el texto en pantalla
@@ -326,6 +331,8 @@ namespace Calculadora_Standar_Windows
             DrawText();
         }
 
+       
+
         //muestra todas las interacciones
         private void DrawText(string value = "")
         {
@@ -347,6 +354,8 @@ namespace Calculadora_Standar_Windows
             else if (step == 'P') txtCal.Text = operacion + "\n" + n2;
             AutoReset();
         }
+
+       
 
         //pasa step por step
         private void NextStep(char value = '0')
@@ -382,10 +391,52 @@ namespace Calculadora_Standar_Windows
             
         }
 
+
         //muestra un mensaje de prueva
         private void TestFunction(string indicador)
         {
             MessageBox.Show(indicador + ": se ejecuta.");
+        }
+        // ESTE es para el button M+ suma lo que hay en memoria 
+        private void btnMplus_Click(object sender, EventArgs e)
+        {
+            plus = plus + Convert.ToInt32(txtCal.Text);
+
+        }
+        // Este es el button M-  resta lo que hay en meoria 
+        private void btnMmenos_Click(object sender, EventArgs e)
+        {
+            plus = plus - Convert.ToInt32(txtCal.Text);
+        }
+        // Este es el button para guardar por primera vez datos en la memoria Ms
+        private void btnMs_Click(object sender, EventArgs e)
+        {
+            activateButton(false);
+            plus = Convert.ToInt32(txtCal.Text);
+        }
+
+        // para 
+        private void btnMC_Click(object sender, EventArgs e)
+        {
+            plus = 0;
+            activateButton(true);
+        }
+
+        private void btnMr_Click(object sender, EventArgs e)
+        {
+            txtCal.Text = plus.ToString();
+        }
+
+
+        // esto es para actviar y desactivar los botones de memoria
+        public  void activateButton (bool b)
+        {
+           
+                btnMC.Enabled = !b;
+                btnMmenos.Enabled = !b;
+                btnMplus.Enabled = !b;
+                btnMr.Enabled = !b;
+           
         }
     }
 }

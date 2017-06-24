@@ -131,6 +131,7 @@
             this.btnMr.TabIndex = 2;
             this.btnMr.Text = "Mr";
             this.btnMr.UseVisualStyleBackColor = true;
+            this.btnMr.Click += new System.EventHandler(this.btnMr_Click);
             // 
             // btnMs
             // 
@@ -140,6 +141,7 @@
             this.btnMs.TabIndex = 2;
             this.btnMs.Text = "Ms";
             this.btnMs.UseVisualStyleBackColor = true;
+            this.btnMs.Click += new System.EventHandler(this.btnMs_Click);
             // 
             // btnMplus
             // 
@@ -149,6 +151,7 @@
             this.btnMplus.TabIndex = 2;
             this.btnMplus.Text = "M+";
             this.btnMplus.UseVisualStyleBackColor = true;
+            this.btnMplus.Click += new System.EventHandler(this.btnMplus_Click);
             // 
             // btnMmenos
             // 
@@ -158,6 +161,7 @@
             this.btnMmenos.TabIndex = 2;
             this.btnMmenos.Text = "M-";
             this.btnMmenos.UseVisualStyleBackColor = true;
+            this.btnMmenos.Click += new System.EventHandler(this.btnMmenos_Click);
             // 
             // btnDelete
             // 
@@ -267,6 +271,7 @@
             this.btnMC.TabIndex = 2;
             this.btnMC.Text = "MC";
             this.btnMC.UseVisualStyleBackColor = true;
+            this.btnMC.Click += new System.EventHandler(this.btnMC_Click);
             // 
             // btn4
             // 
