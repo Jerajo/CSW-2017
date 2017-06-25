@@ -296,13 +296,16 @@ namespace Calculadora_Standar_Windows
         // ingresar operaciones por botones o por teclado
         private void AlmacenarOperacion(char value)
         {
-            if (value == '√') NextStep('4');
-            else NextStep();
             if (value != '%' && value != '√') nOperaciones++;
-
             operador = value;
 
-            if(nOperaciones >= 2)
+            if(step == '4')
+            {
+                n1 = resultado;
+                n2 = resultado;
+                operacion = n1 + " " + operador;
+            }
+            else if(nOperaciones >= 2)
             {
                 operacion += n2 + " " + operador;
                 NextStep('P');
@@ -314,6 +317,9 @@ namespace Calculadora_Standar_Windows
                 else operacion = n1 + " " + operador;
             }
             esfraccion = false;
+            if (value == '√') NextStep('4');
+            else if (step == '4') NextStep('4');
+            else NextStep();
             DrawText();
         }
 
