@@ -67,7 +67,7 @@ namespace Calculadora_Standar_Windows.identidades
                     return false;
             }
         }
-        public string Calcular(char operador, string n1, string n2 = "0")
+        public string Calcular(char operador, string n1 = "0", string n2 = "0")
         {
             ConvertirValores(n1, n2);
             switch (operador)
@@ -126,6 +126,12 @@ namespace Calculadora_Standar_Windows.identidades
         {
             r = Math.Sqrt(n1);
             return Convert.ToString(r);
+        }
+
+        //testeo de funciones
+        private void TestFuncion(string funcion, string valor1 = "0", string valor2 = "0")
+        {
+            MessageBox.Show(funcion + ": Esto se ejecuta. \nN1: " + valor1 + "\tN2:" + valor2);
         }
     }
 }

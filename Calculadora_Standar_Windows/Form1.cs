@@ -18,7 +18,7 @@ namespace Calculadora_Standar_Windows
         //variables e instancias
         Calculadora caluladora = new Calculadora();
         bool esfraccion;
-        string operacion, resultado;
+        string operacion, resultado = "0";
         string n1 = "0", n2 = "0";
         char operador, step;
         int nOperaciones = 0;
@@ -232,16 +232,12 @@ namespace Calculadora_Standar_Windows
             {
                 resultado = caluladora.Calcular(operador, n1, n2);
                 NextStep();          
-                if (step == 'P')
-                {
-                    n1 = resultado;
-                    n2 = resultado;
-                }
             }
-            else if (step == '4')
+            else if (step == '4' || step == 'P')
             {
-                n1 = resultado;
-                resultado = caluladora.Calcular(operador, n1, n2);
+                if(resultado != "0") n1 = resultado;
+                if (n2 != "0") resultado = caluladora.Calcular(operador, n1, n2);
+                else if (resultado != "0") resultado = caluladora.Calcular(operador, n1, resultado);
             }
             DrawText();
         }
@@ -278,8 +274,8 @@ namespace Calculadora_Standar_Windows
         //ingresar los numero por botones o por teclado
         private void IngresarNumero(char value)
         {
+            if (step == '2' || step == 'P') NextStep();
             if (step == '4') ResetCalculadora();
-            if (step == '2') NextStep();
 
             if (step == '1')
             {
@@ -297,29 +293,33 @@ namespace Calculadora_Standar_Windows
         private void AlmacenarOperacion(char value)
         {
             if (value != '%' && value != '√') nOperaciones++;
-            operador = value;
 
-            if(step == '4')
-            {
-                n1 = resultado;
-                n2 = resultado;
-                operacion = n1 + " " + operador;
-            }
-            else if(nOperaciones >= 2)
-            {
-                operacion += n2 + " " + operador;
-                NextStep('P');
-                btnResultado_Click(null, null);
+            if(nOperaciones >= 2 && step != '2')
+            {  
+                if (step != 'P')
+                {
+                    NextStep('P'); 
+                    btnResultado_Click(null, null);
+                    operador = value;
+                    operacion += " " + n2 + " " + operador;
+                }
+                else
+                {
+                    operador = value;
+                    operacion = operacion.Remove(operacion.Length - 1, 1) + operador;
+                }
             }
             else
             {
+                operador = value;
                 if (operador == '√') operacion = operador + " " + n1;
                 else operacion = n1 + " " + operador;
             }
-            esfraccion = false;
+
+            esfraccion = false; //resetea indicador
+            if (n2 != "0") n2 = "0"; //resetea n2
             if (value == '√') NextStep('4');
-            else if (step == '4') NextStep('4');
-            else NextStep();
+            else if (step == '1') NextStep();
             DrawText();
         }
 
@@ -327,10 +327,9 @@ namespace Calculadora_Standar_Windows
         private void ResetCalculadora()
         {
             n1 = "0";
-            operador = ' ';
             n2 = "0";
             operacion = "";
-            resultado = "";
+            resultado = "0";
             esfraccion = false;
             nOperaciones = 0;
             NextStep('1');
@@ -357,7 +356,7 @@ namespace Calculadora_Standar_Windows
             else if (step == '3') txtCal.Text = operacion + "\n" + n2;
             else if (step == '4') txtCal.Text = resultado;
             else if (step == 'S') txtCal.Text = operacion + "\n" + n2;
-            else if (step == 'P') txtCal.Text = operacion + "\n" + n2;
+            else if (step == 'P') txtCal.Text = operacion + "\n" + resultado;
             AutoReset();
         }
 
@@ -378,12 +377,12 @@ namespace Calculadora_Standar_Windows
                         step = '2';
                         break;
                     case '2':
-                        step = '3';
-                        break;
-                    case '3':
                     case 'P':
                     case 'S':
                     case 'M':
+                        step = '3';
+                        break;
+                    case '3':      
                         step = '4';
                         break;
                     case '4':
@@ -397,12 +396,6 @@ namespace Calculadora_Standar_Windows
             
         }
 
-
-        //muestra un mensaje de prueva
-        private void TestFunction(string indicador)
-        {
-            MessageBox.Show(indicador + ": se ejecuta.");
-        }
         // ESTE es para el button M+ suma lo que hay en memoria 
         private void btnMplus_Click(object sender, EventArgs e)
         {
@@ -439,6 +432,12 @@ namespace Calculadora_Standar_Windows
         {          
                 btnMC.Enabled = b;
                 btnMr.Enabled = b;        
+        }
+
+        //muestra un mensaje de prueva
+        private void TestFunction(string funcion, string valor1 = "0", string valor2 = "0")
+        {
+            MessageBox.Show(funcion + ": Esto se ejecuta. \nN1: " + valor1 + "\tN2:" + valor2);
         }
     }
 }
