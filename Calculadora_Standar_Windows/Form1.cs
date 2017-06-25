@@ -29,7 +29,7 @@ namespace Calculadora_Standar_Windows
             InitializeComponent();
             
             // es para que al principio aparezca desactivados los botones de memroia
-            activateButton(true);
+            activateButton(false);
         }
 
         //copia el texto en pantalla
@@ -417,7 +417,7 @@ namespace Calculadora_Standar_Windows
         // Este es el button para guardar por primera vez datos en la memoria Ms
         private void btnMs_Click(object sender, EventArgs e)
         {
-            activateButton(false);
+            activateButton(true);
             plus = Convert.ToInt32(txtCal.Text);
         }
 
@@ -425,7 +425,7 @@ namespace Calculadora_Standar_Windows
         private void btnMC_Click(object sender, EventArgs e)
         {
             plus = 0;
-            activateButton(true);
+            activateButton(false);
         }
 
         private void btnMr_Click(object sender, EventArgs e)
@@ -436,13 +436,9 @@ namespace Calculadora_Standar_Windows
 
         // esto es para actviar y desactivar los botones de memoria
         public  void activateButton (bool b)
-        {
-           
-                btnMC.Enabled = !b;
-                btnMmenos.Enabled = !b;
-                btnMplus.Enabled = !b;
-                btnMr.Enabled = !b;
-           
+        {          
+                btnMC.Enabled = b;
+                btnMr.Enabled = b;        
         }
     }
 }
