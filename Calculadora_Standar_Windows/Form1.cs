@@ -17,12 +17,13 @@ namespace Calculadora_Standar_Windows
     {
         //variables e instancias
         Calculadora caluladora = new Calculadora();
-        bool esfraccion;
+        Dibujador dibujar = new Dibujador();
+        bool esfraccion, editable, negacion;
         string operacion, resultado = "0";
         string n1 = "0", n2 = "0";
         char operador, step;
-        int nOperaciones = 0;
-        private int plus = 0;
+        int nOperaciones = 0, nSifras = 0;
+        double[] memoria = new double[5];
 
         public Form1()
         {
@@ -49,13 +50,29 @@ namespace Calculadora_Standar_Windows
         {
             if (step == '1')
             {
-                if (n1 != "0" && n1.Length != 0) n1 = n1.Remove(n1.Length - 1, 1);
-                if(n1.Length == 0) n1 = "0";
+                if (n1 != "0" && n1.Length != 0)
+                {
+                    n1 = n1.Remove(n1.Length - 1, 1);
+                    if (n1.Length > 0) nSifras = n1.Length;
+                }
+                if(n1.Length == 0)
+                {
+                    n1 = "0";
+                    editable = false;
+                }
             }
             else if (step == '3')
             {
-                if (n2 != "0" && n2.Length != 0) n2 = n2.Remove(n2.Length - 1, 1);
-                if (n2.Length == 0) n2 = "0";
+                if (n2 != "0" && n2.Length != 0)
+                {
+                    n2 = n2.Remove(n2.Length - 1, 1);
+                    if (n2.Length > 0) nSifras = n2.Length;
+                }
+                if (n2.Length == 0)
+                {
+                    n2 = "0";
+                    editable = false;
+                }
             }
             DrawText();
         }
@@ -64,6 +81,8 @@ namespace Calculadora_Standar_Windows
         {
             ResetCalculadora();
             this.KeyPreview = true;
+            //limpia memoria
+            for (int i = 0; i < memoria.Length; i++) memoria[i] = 0;
 
             foreach (Control control in this.Controls)
             {
@@ -181,22 +200,49 @@ namespace Calculadora_Standar_Windows
         //botones modificadores
         private void btnRaiz_Click(object sender, EventArgs e)
         {
-            AlmacenarOperacion('√');
+            operador = '√';
+            if (step == '1') operacion = operador + "(" + n1 + ")";
+            else if (step == '3') operacion = operador + "(" + n2 + ")";
+            else if (step == '4') operacion = operador + "(" + resultado + ")";
             btnResultado_Click(null, null);
-            NextStep('4');
-            DrawText();
         }
         private void btnProciento_Click(object sender, EventArgs e)
         {
-            AlmacenarOperacion('%');
+            if (step == '1')
+            {
+                operacion = "0";
+                n1 = "0";
+                memoria[3] = Convert.ToDouble(n1);
+                NextStep('M');
+                DrawText();
+            }
+            else
+            {
+                operador = '%';
+                if (step == '2') operacion += " " + n1 + operador;
+                if (step == '3') operacion += " " + n2 + operador;
+                else if (step == '4') operacion += " " + resultado + operador;
+                btnResultado_Click(null, null);
+            }
         }
         private void btnMasoMenos_Click(object sender, EventArgs e)
         {
-            if (step == '2' || step == 'P') NextStep();
+            if (negacion) negacion = false;
+            else negacion = true;
             if (step == '1')
             {
                 if (n1.Contains("-")) n1 = n1.Remove(0, 1);
                 else n1 = n1.Insert(0, "-");
+            }
+            else if (step == '2' || step == 'P')
+            {
+                if (negacion) operacion += " Negate(" + n1 + ")";
+                else
+                {
+                    int index = operacion.LastIndexOf(" ");
+                    operacion = operacion.Remove(index, operacion.Length - index);
+                }
+                memoria[3] *= -1;
             }
             else if (step == '3')
             {
@@ -218,27 +264,54 @@ namespace Calculadora_Standar_Windows
         private void btnResultado_Click(object sender, EventArgs e)
         {
             if (operador == '√')
-            {
-                if (step == '1') resultado = caluladora.Calcular(operador, n1);
+            {       
+                if (step <= '2') resultado = caluladora.Calcular(operador, n1);
                 if (step == '3') resultado = caluladora.Calcular(operador, n2);
-                if (step == '4') resultado = caluladora.Calcular(operador, resultado);    
+                if (step == '4') resultado = caluladora.Calcular(operador, resultado);
+                memoria[4] = Convert.ToDouble(resultado);
+                NextStep('S');
+            }
+            else if (operador == '%')
+            {
+                if (step <= '2') resultado = caluladora.Calcular(operador, n1, memoria[3].ToString());
+                if (step == '3') resultado = caluladora.Calcular(operador, n1, n2);
+                if (step == '4') resultado = caluladora.Calcular(operador, resultado, n2);                
+                memoria[4] = Convert.ToDouble(resultado);
+                NextStep('S');
             }
             else if (step == '2')
             {
-                resultado = caluladora.Calcular(operador, n1, n1);
+                resultado = caluladora.Calcular(operador, n1, memoria[3].ToString());
+                memoria[4] = Convert.ToDouble(resultado);
+                n2 = n1;
+                NextStep('4');
+            }
+            else if (step == 'P')
+            {
+                memoria[4] = Convert.ToDouble(resultado);
+                if (editable) resultado = caluladora.Calcular(operador, n1, n2);
+                else resultado = caluladora.Calcular(operador, n1, resultado);
+                if (resultado != "0") n1 = resultado;
+                NextStep('4');
+            }
+            else if (step == 'M')
+            {
+                resultado = caluladora.Calcular('+', n1, memoria[3].ToString());
                 NextStep('4');
             }
             else if (step == '3')
             {
-                resultado = caluladora.Calcular(operador, n1, n2);
+                if (nOperaciones >= 2) resultado = caluladora.Calcular(operador, resultado, n2);
+                else resultado = caluladora.Calcular(operador, n1, n2);
                 NextStep();          
             }
-            else if (step == '4' || step == 'P')
+            else if (step == '4')
             {
-                if(resultado != "0") n1 = resultado;
-                if (n2 != "0") resultado = caluladora.Calcular(operador, n1, n2);
-                else if (resultado != "0") resultado = caluladora.Calcular(operador, n1, resultado);
+                if(editable) resultado = caluladora.Calcular(operador, resultado, n2);
+                else resultado = caluladora.Calcular(operador, resultado, memoria[4].ToString());
             }
+            esfraccion = false;
+            editable = false;
             DrawText();
         }
 
@@ -262,7 +335,8 @@ namespace Calculadora_Standar_Windows
             }
             else if (caluladora.checkOperation(e.KeyChar)) //detecta operaciones por teclado * / + -
             {
-                AlmacenarOperacion(e.KeyChar);
+                if (e.KeyChar == '%') btnProciento_Click(null, null);
+                else AlmacenarOperacion(e.KeyChar);
             }
 
             if (e.KeyChar == (char)8)
@@ -275,26 +349,28 @@ namespace Calculadora_Standar_Windows
         private void IngresarNumero(char value)
         {
             if (step == '2' || step == 'P') NextStep();
-            if (step == '4') ResetCalculadora();
-
-            if (step == '1')
+            if (step == '4' || step == 'S' || step == 'M') ResetCalculadora();
+            if (step == '1' && nSifras < 15)
             {
-                if (n1 == "0" && value != '.') n1 = "";
+                if (!editable && value != '.') n1 = "";
                 n1 += value;
+                editable = true;
+                nSifras = n1.Length;
             } 
-            else if (step == '3')
+            else if (step == '3' && nSifras < 15)
             {
-                if (n2 == "0" && value != '.') n2 = "";
+                if (!editable && value != '.') n2 = "";
                 n2 += value;
+                editable = true;
+                nSifras = n2.Length;
             }   
         }
 
         // ingresar operaciones por botones o por teclado
         private void AlmacenarOperacion(char value)
         {
-            if (value != '%' && value != '√') nOperaciones++;
-
-            if(nOperaciones >= 2 && step != '2')
+            if (step != '2') nOperaciones++;
+            if(nOperaciones >= 2 && step != '2'  && step != '4')
             {  
                 if (step != 'P')
                 {
@@ -302,6 +378,7 @@ namespace Calculadora_Standar_Windows
                     btnResultado_Click(null, null);
                     operador = value;
                     operacion += " " + n2 + " " + operador;
+                    memoria[4] = Convert.ToDouble(resultado);
                 }
                 else
                 {
@@ -312,14 +389,20 @@ namespace Calculadora_Standar_Windows
             else
             {
                 operador = value;
-                if (operador == '√') operacion = operador + " " + n1;
+                if (step == '4')
+                {
+                    n1 = n2 = resultado;
+                    operacion = resultado + " " + operador;
+                }
                 else operacion = n1 + " " + operador;
+                memoria[3] = Convert.ToDouble(n1);
             }
-
-            esfraccion = false; //resetea indicador
-            if (n2 != "0") n2 = "0"; //resetea n2
-            if (value == '√') NextStep('4');
-            else if (step == '1') NextStep();
+            //resetea indicadores
+            nSifras = 1;
+            esfraccion = false; 
+            editable = false;
+            if (step == '1') NextStep('2');
+            else if (step == '4') NextStep('P');
             DrawText();
         }
 
@@ -331,36 +414,22 @@ namespace Calculadora_Standar_Windows
             operacion = "";
             resultado = "0";
             esfraccion = false;
+            editable = false;
+            negacion = false;
             nOperaciones = 0;
+            nSifras = 1;
+            for (int i = 3; i <= 4; i++) memoria[i] = 0;
             NextStep('1');
-            DrawText();
+            DrawText("Clean");
         }
-
-       
 
         //muestra todas las interacciones
         private void DrawText(string value = "")
         {
-            //TestFunction("DrawText");
-            if (value != "")
-            {
-                if (value == "Clean") txtCal.Text = "0";
-                else if (value == "CleanE")
-                {
-                    if (step == '1' || step == '4') txtCal.Text = "0";
-                    else txtCal.Text = operacion + "\n0";
-                }
-            }  
-            else if (step == '1') txtCal.Text = n1;
-            else if (step == '2') txtCal.Text = operacion + "\n" + n1;           
-            else if (step == '3') txtCal.Text = operacion + "\n" + n2;
-            else if (step == '4') txtCal.Text = resultado;
-            else if (step == 'S') txtCal.Text = operacion + "\n" + n2;
-            else if (step == 'P') txtCal.Text = operacion + "\n" + resultado;
+            dibujar.Actualizar(step, n1, operacion, n2, resultado, memoria);
+            txtCal.Text = dibujar.DrawText(value);
             AutoReset();
         }
-
-       
 
         //pasa step por step
         private void NextStep(char value = '0')
@@ -398,32 +467,67 @@ namespace Calculadora_Standar_Windows
 
         // ESTE es para el button M+ suma lo que hay en memoria 
         private void btnMplus_Click(object sender, EventArgs e)
-        {
-            plus = plus + Convert.ToInt32(txtCal.Text);
-
+        {     
+            memoria[0] = memoria[1] + almacenarMemoria();
+            activateButton(true);
+            AutoReset();
         }
         // Este es el button M-  resta lo que hay en meoria 
         private void btnMmenos_Click(object sender, EventArgs e)
         {
-            plus = plus - Convert.ToInt32(txtCal.Text);
+            memoria[0] = memoria[1] - almacenarMemoria();
+            activateButton(true);
+            AutoReset();
         }
         // Este es el button para guardar por primera vez datos en la memoria Ms
         private void btnMs_Click(object sender, EventArgs e)
         {
+            memoria[0] = almacenarMemoria();
             activateButton(true);
-            plus = Convert.ToInt32(txtCal.Text);
+            AutoReset();
+        }
+        private double almacenarMemoria()
+        {
+            if (step == '1' || step == '2') return Convert.ToDouble(n1);
+            else if (step == '3') return Convert.ToDouble(n2);
+            else if (step == '4' || step == 'P') return Convert.ToDouble(resultado);
+            else return 0;
         }
 
-        // para 
+        // limpia memoria 
         private void btnMC_Click(object sender, EventArgs e)
         {
-            plus = 0;
+            for (int i = 0; i < 3; i++) memoria[i] = 0;
             activateButton(false);
+            AutoReset();
         }
 
         private void btnMr_Click(object sender, EventArgs e)
         {
-            txtCal.Text = plus.ToString();
+            if (step == '1')
+            {
+                n1 = memoria[0].ToString();
+            } 
+            else if (step == '2')
+            {
+                n2 = memoria[0].ToString();
+            }
+            else if (step == 'P')
+            {
+                n2 = memoria[0].ToString();
+            }
+            else if (step == '3')
+            {
+                n2 = memoria[0].ToString();
+                NextStep('2');
+            }
+            else if (step == '4')
+            {
+                resultado = memoria[0].ToString();             
+            }
+            editable = false;
+            AutoReset();
+            DrawText();
         }
 
 

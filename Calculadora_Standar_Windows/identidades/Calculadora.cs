@@ -67,7 +67,7 @@ namespace Calculadora_Standar_Windows.identidades
                     return false;
             }
         }
-        public string Calcular(char operador, string n1 = "0", string n2 = "0")
+        public string Calcular(char operador, string n1, string n2 = "0")
         {
             ConvertirValores(n1, n2);
             switch (operador)
@@ -82,15 +82,16 @@ namespace Calculadora_Standar_Windows.identidades
                     txtR = Multiplicar();
                     break;
                 case '/':
-                    if(n2 != "0") txtR = Dividir();
+                    if (n2 != "0") txtR = Dividir();
                     else txtR = "No se puede dividir por 0";
                     break;
                 case '√':
-                    if (n1 != "0") txtR = Raiz('1');
-                    else txtR = "√(0)";
+                    txtR = Raiz();
+                    break;
+                case '%':
+                    txtR = Porcentaje();
                     break;
                 default:
-                    MessageBox.Show("Operacion Incorrecta");
                     break;
             }
             return txtR;
@@ -122,9 +123,14 @@ namespace Calculadora_Standar_Windows.identidades
             r = n1 / n2;
             return Convert.ToString(r);
         }
-        protected string Raiz(char n)
+        protected string Raiz()
         {
             r = Math.Sqrt(n1);
+            return Convert.ToString(r);
+        }
+        protected string Porcentaje()
+        {
+            r = n1 * (n2 * 0.01);
             return Convert.ToString(r);
         }
 
